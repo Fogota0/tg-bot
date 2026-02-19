@@ -134,12 +134,14 @@ def main():
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(MessageHandler(filters.ChatType.CHANNEL, forward_message))
     app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("d20", roll_d20))
+    app.add_handler(CommandHandler("d20", roll_d20))  # ← ВОТ ТАК
 
     logger.info("Бот запущен...")
     app.run_polling(allowed_updates=["channel_post", "message"])
 
+
 if __name__ == "__main__":
     main()
+
 
 
