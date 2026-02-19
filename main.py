@@ -107,6 +107,21 @@ async def flush_album(context: ContextTypes.DEFAULT_TYPE, group_id: str):
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(random.choice(START_REPLIES))
 
+# --- Команда /d20 ---
+async def roll_d20(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    roll = random.randint(1, 20)
+
+    # Можно добавить немного атмосферы
+    if roll == 20:
+        text = f"🎲 Ты выбросил {roll} — АХУЕТЬ 20! Критический успех!"
+    elif roll == 1:
+        text = f"🎲 Ты выбросил {roll} — КРИТИЧЕСКИЙ ПРОВАЛ, ЛОШАРА"
+    else:
+        text = f"🎲 Ты выбросил {roll}"
+
+    await update.message.reply_text(text)
+
+
 def main():
     # 1. Запускаем сервер-"пищалку" для Render в фоновом потоке
     threading.Thread(target=run_health_check, daemon=True).start()
@@ -119,10 +134,12 @@ def main():
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(MessageHandler(filters.ChatType.CHANNEL, forward_message))
     app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("d20", roll_d20))
 
     logger.info("Бот запущен...")
     app.run_polling(allowed_updates=["channel_post", "message"])
 
 if __name__ == "__main__":
     main()
+
 
