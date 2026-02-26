@@ -27,7 +27,7 @@ snapeDead.src = "assets/snape_dead.png";
 
 let snapeFrame = 0;
 let animationTimer = 0;
-let animationSpeed = 20; // больше = медленнее переключение анимации
+let animationSpeed = 50; // больше = медленнее переключение анимации
 
 let time = 0;
 let dayDuration = 2000; // сколько кадров длится цикл
@@ -57,7 +57,7 @@ function resize() {
 }
 
 const snape = {
-  x: 100,
+  x: 50,
   y: 0,
   width: 160,
   height: 150,
@@ -560,5 +560,6 @@ function gameLoop(currentTime) {
 requestAnimationFrame(gameLoop);
 
 // 60 кадрвв = 1 секунды
+
 
 
