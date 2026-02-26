@@ -48,7 +48,7 @@ function resize() {
   const baseHeight = 800;
   scale = canvas.height / baseHeight;
 
-   snape.width = 165 * scale;
+  snape.width = 165 * scale;
   snape.height = 190 * scale;
 
   snape.gravity = 0.8 * scale;   // ← ВОТ ТУТ
@@ -80,10 +80,10 @@ const snape = {
 window.addEventListener("resize", resize);
 
 let startTimer = 0;
-let startDelay = 60; // 60 кадров ≈ 1 секунда (меньше пауза перед препятствиями)
+let startDelay = 40; // 60 кадров ≈ 1 секунда (меньше пауза перед препятствиями)
 let obstacles = [];
 let obstacleTimer = 0;
-let obstacleInterval = 80 + Math.random() * 40;
+let obstacleInterval = 80 + Math.random() * 30;
  // чем меньше — тем сложнее
 let gameSpeed = 8;
 
@@ -369,7 +369,7 @@ function updateSnape(delta) {
   }
 
   // Ограничение скорости падения
-  const maxFall = snape.deadInitiated ? 12 : 10;
+  const maxFall = snape.deadInitiated ? 16 : 19;
   if (snape.velocityY > maxFall) {
     snape.velocityY = maxFall;
   }
@@ -448,8 +448,8 @@ function updateScore() {
     scoreTimer = 0;
 
     // ускорение
-    if (score % 20 === 0) {
-      gameSpeed += 0.35; // ещё быстрее прирост скорости
+    if (score % 10 === 0) {
+      gameSpeed += 0.65; // ещё быстрее прирост скорости
     }
   }
 if (score % 250 === 0 && score !== 0) {
@@ -569,6 +569,3 @@ function gameLoop(currentTime = 0) {
 requestAnimationFrame(gameLoop);
 
 // 60 кадрвв = 1 секунды
-
-
-
