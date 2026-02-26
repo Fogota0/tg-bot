@@ -70,10 +70,9 @@ const snape = {
   rotation: 0,
   rotationSpeed: 0,
   velocityY: 0,
-  gravity: 0.6,              // чуть больше гравитации для острого падения
-  jumpPower: -20,           // более мощный старт прыжка
-  onGround: true,
-  scale: 1                   // визуальный масштаб для stretch effect
+  gravity: 0.7,              // чуть быстрее падение
+  jumpPower: -22,           // чуть быстрее прыжок
+  onGround: true
 };
 
 // (debug export removed)
@@ -84,7 +83,7 @@ let startTimer = 0;
 let startDelay = 60; // 60 кадров ≈ 1 секунда (меньше пауза перед препятствиями)
 let obstacles = [];
 let obstacleTimer = 0;
-let obstacleInterval = 100 + Math.random() * 50;
+let obstacleInterval = 80 + Math.random() * 40;
  // чем меньше — тем сложнее
 let gameSpeed = 8;
 
@@ -339,11 +338,9 @@ function jump() {
   }
 
   if (snape.onGround) {
-    snape.velocityY = snape.jumpPower * 0.9; // мощнее
+    snape.velocityY = snape.jumpPower * 0.9;
     snape.y -= 2;
     snape.onGround = false;
-    // запоминаем начало прыжка для эффекта
-    snape.scale = 0.8;
   }
 }
 
@@ -389,14 +386,6 @@ function updateSnape(delta) {
     snape.onGround = false;
   }
 
-  // визуальный stretch: когда уходит вверх – вытягиваем
-  if (!snape.onGround) {
-    const factor = 1 + Math.min(0.4, -snape.velocityY / 20);
-    snape.scale = 1 + (factor - 1) * 0.6; // слегка растягиваем
-  } else {
-    snape.scale += (1 - snape.scale) * 0.2; // возвращаемся в 1
-  }
-
   // Если началась смерть
   if (snape.deadInitiated) {
     snape.rotation += snape.rotationSpeed;
@@ -440,12 +429,8 @@ function drawSnape() {
     ctx.drawImage(currentImage, -snape.width / 2, -snape.height / 2, snape.width, snape.height);
     ctx.restore();
   } else {
-    // обычная отрисовка с масштабированием
-    ctx.save();
-    ctx.translate(snape.x + snape.width/2, snape.y + (snape.visualAdjust || 0) + snape.height/2);
-    ctx.scale(1, snape.scale);
-    ctx.drawImage(currentImage, -snape.width / 2, -snape.height / 2, snape.width, snape.height);
-    ctx.restore();
+    // обычная отрисовка
+    ctx.drawImage(currentImage, snape.x, snape.y + (snape.visualAdjust || 0), snape.width, snape.height);
   }
 }
 
