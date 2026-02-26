@@ -59,7 +59,7 @@ function resize() {
 const snape = {
   x: 50,
   y: 0,
-  width: 160,
+  width: 185,
   height: 150,
   // визуальная подстройка: сдвигает спрайт вниз относительно физической позиции
   visualAdjust: 24,
@@ -149,7 +149,7 @@ let clouds = [];
 function createClouds() {
   clouds = [];
 
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 4; i++) {
     clouds.push({
       x: Math.random() * canvas.width,
       y: 50 + Math.random() * 150,
@@ -192,7 +192,7 @@ let stars = [];
 
 function createStars() {
   stars = [];
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 30; i++) {
     stars.push({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height * 0.6,
@@ -462,9 +462,12 @@ if (score % 250 === 0 && score !== 0) {
 
 
 function drawScore() {
+  ctx.save();
   ctx.fillStyle = "#ffffff";
   ctx.font = "24px Arial";
+  ctx.textAlign = "left";
   ctx.fillText(`Очки: ${score}`, 20, 40);
+  ctx.restore();
 }
 
 
@@ -511,9 +514,8 @@ let frameCount = 0;
 // Кеш для градиента и звёзд
 let cachedGradient = null;
 let lastDayProgress = -1;
-let starFrameCache = null;
 
-function gameLoop(currentTime) {
+function gameLoop(currentTime = 0) {
   requestAnimationFrame(gameLoop);
 
   if (currentTime - lastTime < interval) return;
@@ -560,6 +562,3 @@ function gameLoop(currentTime) {
 requestAnimationFrame(gameLoop);
 
 // 60 кадрвв = 1 секунды
-
-
-
