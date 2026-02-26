@@ -521,10 +521,17 @@ animationTimer = 0;
   snape.rotationSpeed = 0;
 }
 
+let lastTime = 0;
+const fps = 60;
+const interval = 1000 / fps;
 
-function gameLoop() {
+function gameLoop(currentTime) {
+  requestAnimationFrame(gameLoop);
 
-  // Обновляем персонажа всегда, чтобы анимация смерти могла
+  if (currentTime - lastTime < interval) return;
+  lastTime = currentTime;
+
+  // ---- ЛОГИКА ----
   updateSnape();
 
   if (!gameOver) {
@@ -534,16 +541,18 @@ function gameLoop() {
     obstacles.forEach(o => {
       if (checkCollision(snape, o)) {
         gameOver = true;
+
         if (!snape.deadInitiated) {
           snape.deadInitiated = true;
-          snape.velocityY = -10; // поменьше подлёт вверх
+          snape.velocityY = -10;
           snape.onGround = false;
-          snape.rotationSpeed = 0.08; // медленнее вращение при падении
+          snape.rotationSpeed = 0.08;
         }
       }
     });
   }
 
+  // ---- ОТРИСОВКА ----
   drawBackground();
   drawClouds();
   drawStars();
@@ -556,10 +565,8 @@ function gameLoop() {
   if (gameOver) {
     drawGameOver();
   }
-
-  requestAnimationFrame(gameLoop);
 }
 
-gameLoop();
+requestAnimationFrame(gameLoop);
 
 // 60 кадрвв = 1 секунды
