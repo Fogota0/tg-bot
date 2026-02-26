@@ -27,8 +27,9 @@ snapeDead.src = "assets/snape_dead.png";
 
 let snapeFrame = 0;
 let animationTimer = 0;
-// Адаптивная скорость анимации: на мобильнике выше (чтобы не мелькало)
-let animationSpeed = window.innerWidth < 768 ? 70 : 50; // больше = медленнее переключение анимации
+// Адаптивная длительность кадра анимации (в мс)
+let animationSpeed = window.innerWidth < 768 ? 200 : 120; // меньше = быстрее переключение
+
 
 let time = 0;
 let dayDuration = 2000; // сколько кадров длится цикл
@@ -349,7 +350,7 @@ function jump() {
 window.addEventListener("mousedown", jump);
 window.addEventListener("touchstart", jump);
 
-function updateSnape() {
+function updateSnape(delta) {
   // Гравитация 
   if (snape.deadInitiated) {
     // при смерти
@@ -394,9 +395,9 @@ function updateSnape() {
     return;
   }
 
-  // АНИМАЦИЯ БЕГА
+  // АНИМАЦИЯ БЕГА (время)
   if (snape.onGround && !gameOver) {
-    animationTimer++;
+    animationTimer += delta;
     if (animationTimer >= animationSpeed) {
       snapeFrame = snapeFrame === 0 ? 1 : 0;
       animationTimer = 0;
@@ -525,12 +526,13 @@ function gameLoop(currentTime = 0) {
   requestAnimationFrame(gameLoop);
 
   if (currentTime - lastTime < interval) return;
+  const delta = currentTime - lastTime;
   lastTime = currentTime;
 
   frameCount++;
 
   // ---- ЛОГИКА ----
-  updateSnape();
+  updateSnape(delta);
 
   if (!gameOver) {
     updateObstacles();
@@ -568,3 +570,4 @@ function gameLoop(currentTime = 0) {
 requestAnimationFrame(gameLoop);
 
 // 60 кадрвв = 1 секунды
+
