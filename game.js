@@ -412,7 +412,8 @@ function drawSnape() {
 
   if (gameOver) {
     currentImage = snapeDead;
-  } else if (!snape.onGround) {
+  } else if (!snape.onGround && snape.velocityY < -1) {
+    // показываем прыжок только если персонаж действительно в подлёте
     currentImage = snapeJump;
   } else {
     currentImage = snapeFrame === 0 ? snapeRun1 : snapeRun2;
