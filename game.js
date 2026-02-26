@@ -35,29 +35,25 @@ let dayDuration = 2000; // сколько кадров длится цикл
 let dayProgress = 0;      // 0 = день, 1 = ночь
 let targetNight = false;  // к чему стремимся
 
+let scale = 1;
 
 obstacleImages.push(potionImg, bookImg, cauldronImg);
-
 
 function resize() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  // базовая линия земли
-  snape.baseY = canvas.height - 70;
-  // физическая Y без визуального смещения
+  const baseHeight = 800;
+  scale = canvas.height / baseHeight;
+
+  snape.width = 120 * scale;
+  snape.height = 190 * scale;
+
+  snape.gravity = 0.8 * scale;   // ← ВОТ ТУТ
+  snape.jumpPower = -18 * scale; // ← И ВОТ ТУТ
+
+  snape.baseY = canvas.height - 70 * scale;
   snape.y = snape.baseY - snape.height;
-
-  // Пересоздаём облака и звёзды под новый размер
-  if (typeof createClouds === "function") createClouds();
-  if (typeof createStars === "function") createStars();
-
-  // Подвинем существующие препятствия к новой линии земли
-  if (typeof obstacles !== "undefined" && Array.isArray(obstacles)) {
-    obstacles.forEach(o => {
-      o.y = canvas.height - 70 - o.height;
-    });
-  }
 }
 
 const snape = {
@@ -238,7 +234,7 @@ function drawStars() {
 
 
 function drawGround() {
-  const groundY = canvas.height - 70;
+  const groundY = snape.baseY;
 
   ctx.strokeStyle = "#888";
   ctx.lineWidth = 2;
@@ -248,36 +244,32 @@ function drawGround() {
   ctx.lineTo(canvas.width, groundY);
   ctx.stroke();
 }
-
 function createObstacle() {
   const randomImage =
     obstacleImages[Math.floor(Math.random() * obstacleImages.length)];
-  // Если изображение ещё не загрузилось
-  if (!randomImage.complete || (randomImage.naturalWidth === 0 && randomImage.naturalHeight === 0)) {
-    // небольшая оттяжк
+
+  if (!randomImage.complete || 
+      (randomImage.naturalWidth === 0 && randomImage.naturalHeight === 0)) {
     obstacleTimer = obstacleInterval - 10;
     return;
   }
 
-  const desiredHeight = 60 + Math.random() * 20;
+  // 🔥 ВОТ ЭТО МЕНЯЕМ
+  const desiredHeight = (60 + Math.random() * 20) * scale;
 
-  const imgH = randomImage.naturalHeight || randomImage.height || 1;
-  const imgW = randomImage.naturalWidth || randomImage.width || imgH;
+  const ratio = randomImage.naturalWidth / randomImage.naturalHeight;
 
-  const scale = desiredHeight / imgH;
-
-  const width = imgW * scale;
-  const height = imgH * scale;
+  const height = desiredHeight;
+  const width = height * ratio;
 
   obstacles.push({
-    x: canvas.width + 200,
-    y: canvas.height - 70 - height,
+    x: canvas.width + 100 * scale,
+    y: snape.baseY - height,
     width: width,
     height: height,
     image: randomImage
   });
 }
-
 
 
 
@@ -305,7 +297,7 @@ function updateObstacles() {
 function drawObstacles() {
   obstacles.forEach(o => {
 
-    const groundY = canvas.height - 70;
+    const groundY = snape.baseY;
 
     // ТЕНЬ
     ctx.save();
@@ -393,7 +385,7 @@ function updateSnape() {
 
   snape.y += snape.velocityY;
 
-  const ground = snape.baseY || (canvas.height - 70);
+  const ground = snape.baseY || (snape.baseY);
 
   if (snape.y + snape.height >= ground) {
     snape.y = ground - snape.height;
@@ -513,7 +505,7 @@ gameSpeed = 3.5;
 snapeFrame = 0;
 animationTimer = 0;
   // вернуть на линию земли и сбросить состояние смерти
-  snape.y = (snape.baseY || (canvas.height - 70)) - snape.height;
+  snape.y = (snape.baseY || (snape.baseY)) - snape.height;
   snape.velocityY = 0;
   snape.onGround = true;
   snape.deadInitiated = false;
@@ -570,3 +562,4 @@ function gameLoop(currentTime) {
 requestAnimationFrame(gameLoop);
 
 // 60 кадрвв = 1 секунды
+
