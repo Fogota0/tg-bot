@@ -28,8 +28,7 @@ snapeDead.src = "assets/snape_dead.png";
 let snapeFrame = 0;
 let animationTimer = 0;
 // Адаптивная длительность кадра анимации (в мс)
-let animationSpeed = window.innerWidth < 768 ? 140 : 90; // меньше = быстрее переключение
-
+let animationSpeed = window.innerWidth < 768 ? 100 : 60; //
 
 let time = 0;
 let dayDuration = 2000; // сколько кадров длится цикл
@@ -83,9 +82,9 @@ let startTimer = 0;
 let startDelay = 120; // 120 кадров ≈ 2 секунды
 let obstacles = [];
 let obstacleTimer = 0;
-let obstacleInterval = 120 + Math.random() * 60;
+let obstacleInterval = 100 + Math.random() * 50;
  // чем меньше — тем сложнее
-let gameSpeed = 4.5;
+let gameSpeed = 5;
 
 
 
@@ -570,3 +569,4 @@ function gameLoop(currentTime = 0) {
 requestAnimationFrame(gameLoop);
 
 // 60 кадрвв = 1 секунды
+
