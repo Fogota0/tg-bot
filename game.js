@@ -116,11 +116,16 @@ const bottomDay = { r: 120, g: 160, b: 190 };
   const g2 = lerp(bottomDay.g, bottomNight.g, dayProgress);
   const b2 = lerp(bottomDay.b, bottomNight.b, dayProgress);
 
-  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  gradient.addColorStop(0, `rgb(${r1},${g1},${b1})`);
-  gradient.addColorStop(1, `rgb(${r2},${g2},${b2})`);
+  // Кешируем градиент только если dayProgress изменился
+  if (Math.abs(lastDayProgress - dayProgress) > 0.01) {
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, `rgb(${r1},${g1},${b1})`);
+    gradient.addColorStop(1, `rgb(${r2},${g2},${b2})`);
+    cachedGradient = gradient;
+    lastDayProgress = dayProgress;
+  }
 
-  ctx.fillStyle = gradient;
+  ctx.fillStyle = cachedGradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -129,19 +134,15 @@ const bottomDay = { r: 120, g: 160, b: 190 };
 function drawMoon() {
   if (dayProgress <= 0) return;
 
-  ctx.save();
+  const prevAlpha = ctx.globalAlpha;
   ctx.globalAlpha = dayProgress;
-
-  // подсветочка
-  ctx.shadowColor = "rgba(255,255,200,0.8)";
-  ctx.shadowBlur = 40;
 
   ctx.fillStyle = "rgba(255,255,220,0.95)";
   ctx.beginPath();
   ctx.arc(canvas.width - 120, 120, 40, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.restore();
+  ctx.globalAlpha = prevAlpha;
 }
 
 let clouds = [];
@@ -163,10 +164,10 @@ createClouds();
 function drawClouds() {
   if (dayProgress >= 1) return; // ночью не рисуем
 
-  ctx.save();
-
   // чем ближе к ночи — тем прозрачнее
-  ctx.globalAlpha = 1 - dayProgress;
+  const alpha = 1 - dayProgress;
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = "rgba(255,255,255,0.8)";
 
   clouds.forEach(cloud => {
     cloud.x -= cloud.speed;
@@ -176,8 +177,6 @@ function drawClouds() {
       cloud.y = 50 + Math.random() * 150;
     }
 
-    ctx.fillStyle = "rgba(255,255,255,0.8)";
-
     ctx.beginPath();
     ctx.arc(cloud.x, cloud.y, cloud.size * 0.4, 0, Math.PI * 2);
     ctx.arc(cloud.x + cloud.size * 0.4, cloud.y - 10, cloud.size * 0.5, 0, Math.PI * 2);
@@ -185,7 +184,7 @@ function drawClouds() {
     ctx.fill();
   });
 
-  ctx.restore();
+  ctx.globalAlpha = 1;
 }
 
 
@@ -213,22 +212,24 @@ function drawStars() {
   
   if (dayProgress <= 0) return;
 
+  // Упрощённая анимация мерцания - вместо performance.now()
+  const twinkePhase = frameCount % 60;
+  
   stars.forEach(star => {
+    // Вместо Math.sin с performance.now() - простой расчёт
     const alpha =
-      (0.5 + 0.5 * Math.sin(performance.now() * star.twinkleSpeed + star.phase ))      
+      (0.5 + 0.5 * Math.sin((twinkePhase + star.phase) * 0.1))      
       * dayProgress;
 
-    ctx.save();
     ctx.globalAlpha = alpha;
     ctx.fillStyle = "white";
 
     ctx.beginPath();
     ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
     ctx.fill();
-
-    ctx.restore();
   });
   
+  ctx.globalAlpha = 1;
 }
 
 
@@ -248,8 +249,8 @@ function createObstacle() {
   const randomImage =
     obstacleImages[Math.floor(Math.random() * obstacleImages.length)];
 
-  if (!randomImage.complete || 
-      (randomImage.naturalWidth === 0 && randomImage.naturalHeight === 0)) {
+  // Упрощенная проверка загрузки
+  if (!randomImage.complete) {
     obstacleTimer = obstacleInterval - 10;
     return;
   }
@@ -299,25 +300,14 @@ function drawObstacles() {
 
     const groundY = snape.baseY;
 
-    // ТЕНЬ
-    ctx.save();
-
-    ctx.filter = "blur(6px)";
-    ctx.fillStyle = "rgba(0,0,0,0.35)";
-
-    ctx.beginPath();
-    ctx.ellipse(
-      o.x + o.width / 2,
-      groundY - 2,
-      o.width * 0.4,   // ширина тени 
-      o.height * 0.12, // высота тени 
-      0,
-      0,
-      Math.PI * 2
+    // ТЕНЬ - упрощенно, без blur
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(
+      o.x + o.width * 0.1,
+      groundY - 4,
+      o.width * 0.8,
+      4
     );
-    ctx.fill();
-
-    ctx.restore();
 
     // САМО ИЗОБРАЖЕНИЕ
     ctx.drawImage(o.image, o.x, o.y, o.width, o.height);
@@ -427,19 +417,19 @@ function drawSnape() {
     currentImage = snapeFrame === 0 ? snapeRun1 : snapeRun2;
   }
 
-  ctx.save();
   // Если персонаж в состоянии смерти
   if (snape.deadInitiated) {
     const cx = snape.x + snape.width / 2;
     const cy = snape.y + snape.height / 2;
+    ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(snape.rotation);
     ctx.drawImage(currentImage, -snape.width / 2, -snape.height / 2, snape.width, snape.height);
+    ctx.restore();
   } else {
-    // обычная отрисовка
+    // обычная отрисовка без save/restore
     ctx.drawImage(currentImage, snape.x, snape.y + (snape.visualAdjust || 0), snape.width, snape.height);
   }
-  ctx.restore();
 }
 
 let score = 0;
@@ -516,12 +506,20 @@ animationTimer = 0;
 let lastTime = 0;
 const fps = 60;
 const interval = 1000 / fps;
+let frameCount = 0;
+
+// Кеш для градиента и звёзд
+let cachedGradient = null;
+let lastDayProgress = -1;
+let starFrameCache = null;
 
 function gameLoop(currentTime) {
   requestAnimationFrame(gameLoop);
 
   if (currentTime - lastTime < interval) return;
   lastTime = currentTime;
+
+  frameCount++;
 
   // ---- ЛОГИКА ----
   updateSnape();
@@ -562,4 +560,5 @@ function gameLoop(currentTime) {
 requestAnimationFrame(gameLoop);
 
 // 60 кадрвв = 1 секунды
+
 
