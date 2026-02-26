@@ -48,7 +48,7 @@ function resize() {
   const baseHeight = 800;
   scale = canvas.height / baseHeight;
 
-  snape.width = 120 * scale;
+  snape.width = 140 * scale;
   snape.height = 190 * scale;
 
   snape.gravity = 0.8 * scale;   // ← ВОТ ТУТ
@@ -61,7 +61,7 @@ function resize() {
 const snape = {
   x: 50,
   y: 0,
-  width: 185,
+  width: 210,
   height: 150,
   // визуальная подстройка: сдвигает спрайт вниз относительно физической позиции
   visualAdjust: 24,
@@ -569,3 +569,4 @@ function gameLoop(currentTime = 0) {
 requestAnimationFrame(gameLoop);
 
 // 60 кадрвв = 1 секунды
+
