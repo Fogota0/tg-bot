@@ -496,7 +496,7 @@ function resetGame() {
     
   obstacles = [];
 startTimer = 0;
-gameSpeed = 3.5;
+gameSpeed = 9;
   score = 0;
   scoreTimer = 0;
   obstacleTimer = 0;
@@ -569,4 +569,5 @@ function gameLoop(currentTime = 0) {
 requestAnimationFrame(gameLoop);
 
 // 60 кадрвв = 1 секунды
+
 
