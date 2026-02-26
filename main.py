@@ -6,6 +6,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
 from telegram import Update
 from telegram.ext import Application, ContextTypes, MessageHandler, CommandHandler, filters
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 # --- CONFIG ---
 # Бот возьмет токен из переменных окружения Render
@@ -19,19 +20,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# --- Заглушка для Render (Health Check) ---
-class HealthCheckHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"Bot is running")
+from http.server import SimpleHTTPRequestHandler
+from socketserver import TCPServer
 
-def run_health_check():
-    # Render передает порт в переменную окружения PORT
+def run_web_server():
     port = int(os.environ.get("PORT", 8000))
-    server = HTTPServer(('0.0.0.0', port), HealthCheckHandler)
-    logger.info(f"Веб-сервер запущен на порту {port}")
-    server.serve_forever()
+    handler = SimpleHTTPRequestHandler
+    with TCPServer(("0.0.0.0", port), handler) as httpd:
+        logger.info(f"Веб-сервер запущен на порту {port}")
+        httpd.serve_forever()
 
 # --- Ответы на /start ---
 START_REPLIES = [
@@ -121,10 +118,25 @@ async def roll_d20(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(text)
 
+async def game(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton(
+                text="🎮 Играть в Snape Runner",
+                web_app=WebAppInfo(url="https://твой-render-url.onrender.com")
+            )
+        ]
+    ])
+
+    await update.message.reply_text(
+        "Запускай игру 👇",
+        reply_markup=keyboard
+    )
+
 
 def main():
     # 1. Запускаем сервер-"пищалку" для Render в фоновом потоке
-    threading.Thread(target=run_health_check, daemon=True).start()
+    threading.Thread(target=run_web_server, daemon=True).start()
 
     # 2. Запускаем бота
     if not BOT_TOKEN:
@@ -133,8 +145,9 @@ def main():
 
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(MessageHandler(filters.ChatType.CHANNEL, forward_message))
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("d20", roll_d20))  # ← ВОТ ТАК
+app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("d20", roll_d20))
+app.add_handler(CommandHandler("game", game))
 
     logger.info("Бот запущен...")
     app.run_polling(allowed_updates=["channel_post", "message"])
@@ -142,6 +155,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
