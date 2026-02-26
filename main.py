@@ -123,7 +123,7 @@ async def game(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [
             InlineKeyboardButton(
                 text="🎮 Играть в Snape Runner",
-                web_app=WebAppInfo(url="https://твой-render-url.onrender.com")
+                web_app=WebAppInfo(url="https://tg-bot-zrol.onrender.com/")
             )
         ]
     ])
@@ -135,26 +135,24 @@ async def game(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def main():
-    # 1. Запускаем сервер-"пищалку" для Render в фоновом потоке
     threading.Thread(target=run_web_server, daemon=True).start()
 
-    # 2. Запускаем бота
     if not BOT_TOKEN:
         logger.error("BOT_TOKEN не найден в переменных окружения!")
         return
 
     app = Application.builder().token(BOT_TOKEN).build()
+
     app.add_handler(MessageHandler(filters.ChatType.CHANNEL, forward_message))
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("d20", roll_d20))
-app.add_handler(CommandHandler("game", game))
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("d20", roll_d20))
+    app.add_handler(CommandHandler("game", game))
 
     logger.info("Бот запущен...")
     app.run_polling(allowed_updates=["channel_post", "message"])
-
-
 if __name__ == "__main__":
     main()
+
 
 
 
