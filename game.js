@@ -27,7 +27,8 @@ snapeDead.src = "assets/snape_dead.png";
 
 let snapeFrame = 0;
 let animationTimer = 0;
-let animationSpeed = 50; // больше = медленнее переключение анимации
+// Адаптивная скорость анимации: на мобильнике выше (чтобы не мелькало)
+let animationSpeed = window.innerWidth < 768 ? 70 : 50; // больше = медленнее переключение анимации
 
 let time = 0;
 let dayDuration = 2000; // сколько кадров длится цикл
@@ -474,6 +475,8 @@ function drawScore() {
 
 let gameOver = false;
 function drawGameOver() {
+  ctx.save();
+  
   ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -484,6 +487,8 @@ function drawGameOver() {
 
   ctx.font = "24px Arial";
   ctx.fillText("нажми", canvas.width / 2, canvas.height / 2 + 40);
+  
+  ctx.restore();
 }
 
 function resetGame() {
