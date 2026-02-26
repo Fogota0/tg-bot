@@ -81,7 +81,7 @@ const snape = {
 window.addEventListener("resize", resize);
 
 let startTimer = 0;
-let startDelay = 120; // 120 кадров ≈ 2 секунды
+let startDelay = 60; // 60 кадров ≈ 1 секунда (меньше пауза перед препятствиями)
 let obstacles = [];
 let obstacleTimer = 0;
 let obstacleInterval = 100 + Math.random() * 50;
@@ -464,7 +464,7 @@ function updateScore() {
 
     // ускорение
     if (score % 20 === 0) {
-      gameSpeed += 0.25; // ускорять сильнее
+      gameSpeed += 0.35; // ещё быстрее прирост скорости
     }
   }
 if (score % 250 === 0 && score !== 0) {
@@ -584,4 +584,3 @@ function gameLoop(currentTime = 0) {
 requestAnimationFrame(gameLoop);
 
 // 60 кадрвв = 1 секунды
-
